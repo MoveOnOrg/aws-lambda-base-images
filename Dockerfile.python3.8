@@ -16,3 +16,26 @@ ENV LAMBDA_RUNTIME_DIR=/var/runtime
 WORKDIR /var/task
 
 ENTRYPOINT ["/lambda-entrypoint.sh"]
+
+# Start: MoveOn's custom additions
+ENTRYPOINT ["/lambda-entrypoint.sh", "app.handler"]
+EXPOSE 8000
+
+# Install git and vim
+RUN yum -y install git vim
+
+# Install pyenv prerequisites
+RUN yum groupinstall -y "Development Tools"
+RUN yum install -y zlib zlib-devel bzip2-devel openssl-devel sqlite-devel libffi-devel gcc make patch bzip2 readline-devel sqlite tk-devel xz-devel
+
+# Install pyenv
+RUN curl https://pyenv.run | bash
+RUN echo -e '\n# Load pyenv and pyenv-virtualenv automatically\nexport PYENV_ROOT="$HOME/.pyenv"\ncommand -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+RUN rm awscliv2.zip
+RUN rm -r aws
+# End: MoveOn's custom additions
