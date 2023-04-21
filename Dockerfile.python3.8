@@ -38,4 +38,7 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 RUN rm awscliv2.zip
 RUN rm -r aws
+
+# Limit Parsons dependencies
+RUN echo -e "\n# Limit Parsons dependencies\nexport PIP_NO_BINARY=parsons\nexport PARSONS_LIMITED_DEPENDENCIES=true" >> ~/.bashrc
 # End: MoveOn's custom additions
