@@ -26,7 +26,7 @@ RUN yum -y install git vim
 
 # Install pyenv prerequisites
 RUN yum groupinstall -y "Development Tools"
-RUN yum install -y zlib zlib-devel bzip2-devel openssl-devel sqlite-devel libffi-devel gcc make patch bzip2 readline-devel sqlite tk-devel xz-devel
+RUN yum install -y zlib zlib-devel bzip2-devel openssl11-devel sqlite-devel libffi-devel gcc make patch bzip2 readline-devel sqlite tk-devel xz-devel
 
 # Install pyenv
 RUN curl https://pyenv.run | bash
