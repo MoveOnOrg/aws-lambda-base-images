@@ -36,7 +36,7 @@ To re-create the AWS Lambda base images, make sure you have the following pre-re
 ### Building an image
 First, clone this repository:
 ```
-git clone https://github.com/aws/aws-lambda-base-images
+git clone https://github.com/MoveOnOrg/aws-lambda-base-images
 ```
 
 Then, checkout the branch relevant to the Lambda base image you want to build.
