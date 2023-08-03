@@ -1,10 +1,4 @@
-FROM scratch
-ADD x86_64/29fbabd654554463f42d30cf1700017f3e97488965a15abe19a12517fc8d4609.tar.xz /
-ADD x86_64/2a40e7877698f7121b37e4b0a51ce7dcfcfd2c578af7caed93864ef0488aa206.tar.xz /
-ADD x86_64/3529dd20a8967a50d9738c026ca4262f03fffe47eb43f0d9bed6face6e7eded3.tar.xz /
-ADD x86_64/37969beb2b368a6f0fbddf888371811d3ce4dfaf2da665a229fcf4ebc0427211.tar.xz /
-ADD x86_64/4d281cf0846dcf5fd81ce73f51a3fc5836d4a0ad7be0fb69465624f73a4c35ab.tar.xz /
-ADD x86_64/54ab60daa2c985749f09a06d4fe41ffcdcf030c54c8e1be4f903bac94ee50cde.tar.xz /
+FROM public.ecr.aws/lambda/python:3.8-x86_64
 
 ENV LANG=en_US.UTF-8
 ENV TZ=:/etc/localtime
