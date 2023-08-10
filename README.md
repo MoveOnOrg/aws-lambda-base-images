@@ -48,7 +48,7 @@ git checkout nodejs12.x
 
 Finally you can build your image as such:
 ```
-docker build -t nodejs12.x:local -f Dockerfile.nodejs12.x .
+docker build -t nodejs12.x:local -f Dockerfile.nodejs12.x . --platform linux/amd64
 ```
 
 This will use the Dockerfile at `Dockerfile.nodejs12.x` and tag the newly-built image as `nodejs12.x:local`.
