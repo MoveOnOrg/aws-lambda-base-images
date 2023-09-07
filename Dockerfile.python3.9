@@ -33,9 +33,6 @@ RUN rm -r aws
 # Limit Parsons dependencies
 RUN echo -e "\n# Limit Parsons dependencies\nexport PIP_NO_BINARY=parsons\nexport PARSONS_LIMITED_DEPENDENCIES=true" >> ~/.bashrc
 
-# Install Ganymede dependency
-RUN yum -y install postgresql-devel
-
 # Install and build latest sqlite, needed for Ganymede
 ENV SQLITE_VERSION="3430000"
 RUN mkdir -p /opt/sqlite3 && cd /opt/sqlite3 \
@@ -55,5 +52,27 @@ RUN mkdir -p /opt/python && cd /opt/python \
 && LD_RUN_PATH=/usr/local/lib ./configure \
 && LD_RUN_PATH=/usr/local/lib make \
 && LD_RUN_PATH=/usr/local/lib make install
+
+# Custom compile PostgreSQL and psycopg2 for Python on AWS
+ENV POSTGRESQL_VERSION="9.2.24"
+RUN mkdir -p /opt/postgresql && cd /opt/postgresql \
+&& wget "https://ftp.postgresql.org/pub/source/v${POSTGRESQL_VERSION}/postgresql-${POSTGRESQL_VERSION}.tar.gz"
+RUN cd /opt/postgresql \
+&& tar xzf "postgresql-${POSTGRESQL_VERSION}.tar.gz" \
+&& cd "postgresql-${POSTGRESQL_VERSION}" \
+&& ./configure --without-readline --without-zlib \
+&& make \
+&& make install
+
+ENV PSYCOPG2_VERSION="2_8_5"
+RUN mkdir -p /opt/psycopg2 && cd /opt/psycopg2 \
+&& wget "https://github.com/psycopg/psycopg2/archive/refs/tags/${PSYCOPG2_VERSION}.tar.gz"
+RUN cd /opt/psycopg2 \
+&& tar xzf "${PSYCOPG2_VERSION}.tar.gz" \
+&& cd "psycopg2-${PSYCOPG2_VERSION}" \
+&& sed -i "s|pg_config=|pg_config=/opt/postgresql/postgresql-${POSTGRESQL_VERSION}/src/bin/pg_config/pg_config|" setup.cfg \
+&& sed -i "s|static_libpq=0|static_libpq=1|" setup.cfg \
+&& python3 setup.py build \
+&& python3 setup.py install
 
 # End: MoveOn's custom additions
