@@ -12,19 +12,16 @@ WORKDIR /var/task
 ENTRYPOINT ["/lambda-entrypoint.sh"]
 
 # Start: MoveOn's custom additions
+ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin:/var/lang/bin
 ENTRYPOINT ["/lambda-entrypoint.sh", "app.handler"]
 EXPOSE 8000
 
 # Install git and vim
 RUN yum -y install git vim
 
-# Install pyenv prerequisites
+# Install pyenv prerequisites except sqlite
 RUN yum groupinstall -y "Development Tools"
-RUN yum install -y zlib zlib-devel bzip2-devel openssl-devel sqlite-devel libffi-devel gcc make patch bzip2 readline-devel sqlite tk-devel xz-devel
-
-# Install pyenv
-RUN curl https://pyenv.run | bash
-RUN echo -e '\n# Load pyenv and pyenv-virtualenv automatically\nexport PYENV_ROOT="$HOME/.pyenv"\ncommand -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+RUN yum install -y zlib zlib-devel bzip2-devel openssl-devel libffi-devel gcc make patch bzip2 readline-devel tk-devel xz-devel wget
 
 # Install AWS CLI
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -35,4 +32,28 @@ RUN rm -r aws
 
 # Limit Parsons dependencies
 RUN echo -e "\n# Limit Parsons dependencies\nexport PIP_NO_BINARY=parsons\nexport PARSONS_LIMITED_DEPENDENCIES=true" >> ~/.bashrc
+
+# Install Ganymede dependency
+RUN yum -y install postgresql-devel
+
+# Install and build latest sqlite, needed for Ganymede
+ENV SQLITE_VERSION="3430000"
+RUN mkdir -p /opt/sqlite3 && cd /opt/sqlite3 \
+&& wget "https://www.sqlite.org/2023/sqlite-autoconf-${SQLITE_VERSION}.tar.gz" \
+&& tar xvfz "sqlite-autoconf-${SQLITE_VERSION}.tar.gz" \
+&& cd "sqlite-autoconf-${SQLITE_VERSION}" \
+&& ./configure \
+&& make \
+&& make install
+
+# Compile Python from source using latest sqlite, install
+ENV PYTHON_VERSION="3.9.18"
+RUN mkdir -p /opt/python && cd /opt/python \
+&& wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
+&& tar xzf "Python-${PYTHON_VERSION}.tgz" \
+&& cd "Python-${PYTHON_VERSION}" \
+&& LD_RUN_PATH=/usr/local/lib ./configure \
+&& LD_RUN_PATH=/usr/local/lib make \
+&& LD_RUN_PATH=/usr/local/lib make install
+
 # End: MoveOn's custom additions
