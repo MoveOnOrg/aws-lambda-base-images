@@ -1,10 +1,4 @@
-FROM scratch
-ADD x86_64/2c432aa41330b348d0d1509253428b39f49e31538d9421300eea49140b99cd4f.tar.xz /
-ADD x86_64/426cdeee9952ce7abc405f8965a723f42f72487fd694cb0a119664521fdb300b.tar.xz /
-ADD x86_64/6da75cffdb2c933159c92455ed142501df6f07cad31c0eb92e7de3a009964b6d.tar.xz /
-ADD x86_64/7063d3b0c0d1b613ff52d728b722efaaf6fa4f8b0f88957b271daebd4bf0a3ff.tar.xz /
-ADD x86_64/e1c39d98b54eddddd94c7771dd610a76dcec8b3f945611188eb3ca790d3f8b7f.tar.xz /
-ADD x86_64/f53d2445b6b2dbf3d078a755086ad4bb39b24d45b3475fde38023297db7247d5.tar.xz /
+FROM public.ecr.aws/lambda/python:3.11-x86_64
 
 ENV LANG=en_US.UTF-8
 ENV TZ=:/etc/localtime
@@ -16,3 +10,29 @@ ENV LAMBDA_RUNTIME_DIR=/var/runtime
 WORKDIR /var/task
 
 ENTRYPOINT ["/lambda-entrypoint.sh"]
+
+# Start: MoveOn's custom additions
+ENTRYPOINT ["/lambda-entrypoint.sh", "app.handler"]
+EXPOSE 8000
+
+# Install git and vim
+RUN yum -y install git vim
+
+# Install pyenv prerequisites
+RUN yum groupinstall -y "Development Tools"
+RUN yum install -y zlib zlib-devel bzip2-devel openssl-devel sqlite-devel libffi-devel gcc make patch bzip2 readline-devel sqlite tk-devel xz-devel
+
+# Install pyenv
+RUN curl https://pyenv.run | bash
+RUN echo -e '\n# Load pyenv and pyenv-virtualenv automatically\nexport PYENV_ROOT="$HOME/.pyenv"\ncommand -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+RUN rm awscliv2.zip
+RUN rm -r aws
+
+# Limit Parsons dependencies
+RUN echo -e "\n# Limit Parsons dependencies\nexport PIP_NO_BINARY=parsons\nexport PARSONS_LIMITED_DEPENDENCIES=true" >> ~/.bashrc
+# End: MoveOn's custom additions

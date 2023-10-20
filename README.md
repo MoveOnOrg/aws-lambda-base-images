@@ -48,7 +48,7 @@ git checkout nodejs18.x
 
 Finally you can build your image as such:
 ```
-docker build -t nodejs18.x:local -f Dockerfile.nodejs18.x .
+docker build -t nodejs18.x:local -f Dockerfile.nodejs18.x . --platform linux/amd64
 ```
 
 This will use the Dockerfile at `Dockerfile.nodejs18.x` and tag the newly-built image as `nodejs18.x:local`.
